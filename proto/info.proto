@@ -1,0 +1,99 @@
+syntax = "proto3";
+package optiver.exchange.info;
+
+import "common.proto";
+
+enum MessageType {
+    LOGIN_REQUEST = 0;
+    LOGIN_RESPONSE = 1;
+    ON_INSTRUMENT = 2;
+
+    // Info service operations, typically only available to admin users.
+    CREATE_INSTRUMENT_REQUEST = 10;
+    CREATE_INSTRUMENT_RESPONSE = 11;
+
+    ORDER_BOOK_SUBSCRIBE_REQUEST = 20;
+    ORDER_BOOK_SUBSCRIBE_RESPONSE = 21;
+    ON_TOP_OF_BOOK = 22;
+    ON_PRICE_DEPTH_BOOK = 23;
+    ON_TRADE = 24;
+}
+
+// ------------------------------------------------------------
+// Messages sent to all clients upon logging in with the current
+// state of info service, then upon any changes
+// ------------------------------------------------------------
+
+// All active instruments are sent to client on login, then any new instrument is sent on creation
+message OnInstrument {
+    Instrument instrument = 1;
+    int64 created_timestamp = 2;
+    double tick_size = 3;
+    int64 order_book_id = 4;
+}
+
+// ------------------------------------------------------------
+// Requests accepted by this service
+// ------------------------------------------------------------
+
+message CreateInstrumentRequest {
+    int64 request_id = 1;
+    Instrument instrument = 2;
+    double tick_size = 3;
+}
+
+message CreateInstrumentResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    int64 created_timestamp = 3;
+    int64 order_book_id = 4;
+}
+
+// ------------------------------------------------------------
+// Subscription service to an instrument's order book
+// ------------------------------------------------------------
+
+enum SubscriptionType {
+    TOP_OF_BOOK = 0;
+    PRICE_DEPTH_BOOK = 1;
+}
+
+message OrderBookSubscribeRequest {
+    int64 request_id = 1;
+    string instrument_symbol = 2;
+    SubscriptionType subscription_type = 3;
+}
+
+message OrderBookSubscribeResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}
+
+message PriceLevel {
+    double price = 1;
+    int32 quantity = 2;
+}
+
+message OnTopOfBook {
+    string instrument_symbol = 1;
+    int64 timestamp = 2;
+    PriceLevel best_bid = 3;
+    PriceLevel best_ask = 4;
+}
+
+message OnPriceDepthBook {
+    string instrument_symbol = 1;
+    int64 timestamp = 2;
+    repeated PriceLevel bids = 3;
+    repeated PriceLevel asks = 4;
+}
+
+message OnTrade {
+    int64 trade_id = 1;
+    string instrument_symbol = 2;
+    int64 timestamp = 3;
+    double price = 4;
+    int32 quantity = 5;
+    Side aggressor_side = 6;
+}

@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "/optiver/application_config.json",
+    "title": "ApplicationConfig",
+    "type": "object",
+    "properties": {
+        "logLevel": {
+            "type": "string",
+            "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+            "description": "The level of logging for the application."
+        },
+        "logDirectory": {
+            "type": "string",
+            "format": "uri",
+            "description": "The directory where log files will be stored."
+        },
+        "listenOn": {
+            "$ref": "#/$defs/ConnectionConfig"
+        },
+        "connectTo": {
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {
+                    "$ref": "#/$defs/ConnectionConfig"
+                }
+            }
+        }
+    },
+    "required": ["logLevel", "logDirectory", "listenOn"],
+    "additionalProperties": true,
+    "$defs": {
+        "ConnectionConfig": {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "format": "hostname",
+                    "description": "The hostname or IP address of the server."
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65535,
+                    "description": "The port number the server will listen on."
+                }
+            },
+            "required": ["host", "port"],
+            "additionalProperties": false
+        }
+    }
+}

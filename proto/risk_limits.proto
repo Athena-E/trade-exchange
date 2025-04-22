@@ -1,0 +1,122 @@
+syntax = "proto3";
+package optiver.exchange.gateway;
+
+import "common.proto";
+
+enum MessageType {
+    LOGIN_REQUEST = 0;
+    LOGIN_RESPONSE = 1;
+
+    // Execution operations
+
+    INSERT_ORDER_REQUEST = 10;
+    INSERT_ORDER_RESPONSE = 11;
+    CANCEL_ORDER_REQUEST = 12;
+    CANCEL_ORDER_RESPONSE = 13;
+
+    // Limits Interface.
+
+    GET_USER_RISK_LIMITS_REQUEST = 20;
+    GET_USER_RISK_LIMITS_RESPONSE = 21;
+    SET_USER_RISK_LIMITS_REQUEST = 22;
+    SET_USER_RISK_LIMITS_RESPONSE = 23;
+
+    GET_INSTRUMENT_RISK_LIMITS_REQUEST = 24;
+    GET_INSTRUMENT_RISK_LIMITS_RESPONSE = 25;
+    SET_INSTRUMENT_RISK_LIMITS_REQUEST = 26;
+    SET_INSTRUMENT_RISK_LIMITS_RESPONSE = 27;
+}
+
+message RollingWindowLimit {
+    int32 limit = 1;
+    int32 window_in_seconds = 2;
+}
+
+message UserRiskLimits {
+    int64 max_outstanding_quantity = 1;
+    RollingWindowLimit message_rate_rolling_limit = 2;
+}
+
+message InstrumentRiskLimits {
+    int64 max_outstanding_quantity = 1;
+    double max_outstanding_amount = 2;
+    RollingWindowLimit order_quantity_rolling_limit = 3;
+    RollingWindowLimit order_amount_rolling_limit = 4;
+}
+
+// ------------------------------------------------------------
+// Requests accepted by this service
+// ------------------------------------------------------------
+
+message InsertOrderRequest {
+    int64 request_id = 1;
+    string instrument_symbol = 2;
+    Side side = 3;
+    double price = 4;
+    int32 quantity = 5;
+    // TODO start with LIMIT order type only
+}
+
+message InsertOrderResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    int64 order_id = 3;
+    int64 timestamp = 4;
+    repeated int64 trade_ids = 5;
+    int32 traded_quantity = 6;
+}
+
+message CancelOrderRequest {
+    int64 request_id = 1;
+    string instrument_symbol = 2;
+    int64 order_id = 3;
+}
+
+message CancelOrderResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}
+
+message GetUserRiskLimitsRequest {
+    int64 request_id = 1;
+}
+
+message GetUserRiskLimitsResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    UserRiskLimits user_risk_limits = 3;
+}
+
+message SetUserRiskLimitsRequest {
+    int64 request_id = 1;
+    UserRiskLimits user_risk_limits = 2;
+}
+
+message SetUserRiskLimitsResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}
+
+message GetInstrumentRiskLimitsRequest {
+    int64 request_id = 1;
+}
+
+message GetInstrumentRiskLimitsResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    map<string, InstrumentRiskLimits> risk_limits_by_instrument = 3;
+}
+
+message SetInstrumentRiskLimitsRequest {
+    int64 request_id = 1;
+    string instrument_symbol = 2;
+    InstrumentRiskLimits instrument_risk_limits = 3;
+}
+
+message SetInstrumentRiskLimitsResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}

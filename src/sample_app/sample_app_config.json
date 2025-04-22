@@ -1,0 +1,18 @@
+{
+    "logLevel": "DEBUG",
+    "logDirectory": "./logs",
+    "listenOn": {
+        "host": "localhost",
+        "port": 51301
+    },
+    "connectTo": {
+        "client1": {
+            "host": "localhost",
+            "port": 51302
+        },
+        "client2": {
+            "host": "localhost",
+            "port": 51303
+        }
+    }
+}

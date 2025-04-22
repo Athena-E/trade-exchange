@@ -1,0 +1,24 @@
+syntax = "proto3";
+package optiver.exchange;
+
+enum Side {
+    BUY = 0;
+    SELL = 1;
+}
+
+message Instrument {
+    string symbol = 1;
+    string description = 2;
+    string currency = 3;
+    double multiplier = 4;
+}
+
+message LoginRequest {
+    int64 request_id = 1;
+    string username = 2;
+}
+
+message LoginResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}

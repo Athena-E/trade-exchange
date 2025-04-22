@@ -1,0 +1,106 @@
+syntax = "proto3";
+package optiver.exchange.orderbook;
+
+import "common.proto";
+
+enum MessageType {
+    LOGIN_REQUEST = 0;
+    LOGIN_RESPONSE = 1;
+    ON_ORDER_BOOK_CREATED = 2;
+    ON_ORDER_INSERTED = 3;
+    ON_ORDER_CANCELLED = 4;
+    ON_TRADE = 5;
+
+    CREATE_ORDER_BOOK_REQUEST = 10;
+    CREATE_ORDER_BOOK_RESPONSE = 11;
+    INSERT_ORDER_REQUEST = 12;
+    INSERT_ORDER_RESPONSE = 13;
+    CANCEL_ORDER_REQUEST = 14;
+    CANCEL_ORDER_RESPONSE = 15;
+}
+
+// ------------------------------------------------------------
+// Messages sent to all clients upon logging in with the current
+// state of the order book, then upon any changes
+// ------------------------------------------------------------
+
+message OnOrderBookCreated {
+    int64 order_book_id = 1;
+    double tick_size = 2;
+}
+
+message OnOrderInserted {
+    int64 order_id = 1;
+    int64 order_book_id = 2;
+    int64 timestamp = 3;
+    Side side = 4;
+    double price = 5;
+    int32 quantity = 6;
+    repeated int64 trade_ids = 7;
+}
+
+message OnOrderCancelled {
+    int64 order_id = 1;
+    int64 cancellation_timestamp = 2;
+}
+
+message OnTrade {
+    int64 trade_id = 1;
+    int64 order_book_id = 2;
+    int64 timestamp = 3;
+    int64 buy_order_id = 4;
+    int64 sell_order_id = 5;
+    double price = 6;
+    int32 quantity = 7;
+    Side aggressor_side = 8;
+}
+
+// ------------------------------------------------------------
+// Requests accepted by this service
+// ------------------------------------------------------------
+
+message CreateOrderBookRequest {
+    int64 request_id = 1;
+    double tick_size = 2;
+}
+
+message CreateOrderBookResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    int64 order_book_id = 3;
+    int64 timestamp = 4;
+}
+
+message InsertOrderRequest {
+    int64 request_id = 1;
+    int64 order_book_id = 2;
+    Side side = 3;
+    double price = 4;
+    int32 quantity = 5;
+    // TODO start with LIMIT order type only
+    
+    // optional fields for risk gateway
+    string on_behalf_of_username = 100;
+}
+
+message InsertOrderResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+
+    int64 order_id = 3;
+    int64 timestamp = 4;
+    repeated int64 trade_ids = 5;
+    int32 traded_quantity = 6;
+}
+
+message CancelOrderRequest {
+    int64 request_id = 1;
+    int64 order_book_id = 2;
+    int64 order_id = 3;
+}
+
+message CancelOrderResponse {
+    int64 request_id = 1;
+    string error_message = 2;
+}
